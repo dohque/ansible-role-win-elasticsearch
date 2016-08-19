@@ -57,6 +57,11 @@ Example Playbook
          - { role: dohque.win_elasticsearch }
 ```
 
+Contributions
+-------------
+
+I will really appreciate any feedback and contributions. Feel free to contact me.
+
 License
 -------
 
