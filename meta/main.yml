@@ -180,18 +180,18 @@ galaxy_info:
   #  - wheezy
 
   galaxy_tags:
-    windows
-    windowsserver
-    2012R2
-    elasticsearch
-    search
-    solr
-    lucene
-    nosql
-    bigdata
-    monitoring
-    system
-    web
+    - windows
+    - windowsserver
+    - 2012R2
+    - elasticsearch
+    - search
+    - solr
+    - lucene
+    - nosql
+    - bigdata
+    - monitoring
+    - system
+    - web
     # List tags for your role here, one per line. A tag is
     # a keyword that describes and categorizes the role.
     # Users find roles by searching for tags. Be sure to
