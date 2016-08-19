@@ -1,7 +1,7 @@
 Ansible Role: win_elasticsearch
 ===============================
 
-An Ansible Role that installs Elasticsearch on windows.
+An Ansible Role that installs Elasticsearch on Windows.
 
 Requirements
 ------------
