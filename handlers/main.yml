@@ -1,0 +1,4 @@
+---
+
+- name: elasticsearch restart
+  win_service: name=elasticsearch-service-x64 state=restarted

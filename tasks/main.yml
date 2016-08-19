@@ -1,0 +1,41 @@
+---
+
+- name: Ensure elasticsearch is installed
+  win_chocolatey:
+    # --allow-empty-checksum is a workaround for accepting java license
+    name: elasticsearch -y --allow-empty-checksums
+    version: "{{elasticsearch_version}}"
+    state: present
+  # notify: elasticsearch restart
+
+# Detect java home from registry
+- name: Detect Java version
+  raw: Get-ItemProperty Registry::"HKLM\SOFTWARE\JavaSoft\Java Runtime Environment" | % { $_.CurrentVersion }
+  register: result
+
+- name: Detect JAVA_HOME
+  raw: Get-ItemProperty Registry::"HKLM\SOFTWARE\JavaSoft\Java Runtime Environment\{{ result.stdout_lines[0] }}" | % { $_.JavaHome }
+  register: result
+
+- set_fact: java_home="{{ result.stdout_lines[0] }}"
+
+- name: Ensure JAVA_HOME is set to {{java_home}}
+  win_environment:
+    state: present
+    name: JAVA_HOME
+    value: "{{ java_home }}"
+    level: machine
+
+# TODO: Add aditional custom extra params
+- name: Ensure elasticsearch.yml is generated
+  win_template: src=elasticsearch.yml.j2  dest="{{elasticsearch_home}}/config/elasticsearch.yml"
+  notify: elasticsearch restart
+
+# TODO: Add elasticsearch logs to filebeat if it is installed
+
+
+- name: Ensure elasticsearch service is installed
+  raw: CMD /C {{elasticsearch_home}}\bin\service.bat install
+
+- name: Ensure elasticsearch-service-x64 service is started
+  win_service: name=elasticsearch-service-x64 start_mode=auto state=started
