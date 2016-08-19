@@ -2,4 +2,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - win_elasticsearch
+    - ansible-role-win-elasticsearch
