@@ -173,8 +173,10 @@ galaxy_info:
     - lucene
     - nosql
     - bigdata
-    - monitoring
     - system
+    - development
+    - monitoring
+    - database
     - web
     - elk
     - elasticstack
