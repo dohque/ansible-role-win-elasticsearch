@@ -1,7 +1,7 @@
 Ansible Role: win_elasticsearch
 ===============================
 
-[![Build Status](https://travis-ci.org/dohque/ansible-role-win-elasticsearch.svg?branch=master)](https://travis-ci.org/dohque/ansible-role-win-elasticsearch)
+[![Build Status](https://travis-ci.org/dohque/ansible-role-win-elasticsearch.svg?branch=release)](https://travis-ci.org/dohque/ansible-role-win-elasticsearch)
 
 An Ansible Role that installs Elasticsearch on Windows.
 

@@ -28,7 +28,9 @@
 
 # TODO: Add aditional custom extra params
 - name: Ensure elasticsearch.yml is generated
-  win_template: src=elasticsearch.yml.j2  dest="{{elasticsearch_home}}/config/elasticsearch.yml"
+  win_template:
+    src: elasticsearch.yml.j2
+    dest: "{{elasticsearch_home}}/config/elasticsearch.yml"
   notify: elasticsearch restart
 
 # TODO: Add elasticsearch logs to filebeat if it is installed
