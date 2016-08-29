@@ -1,0 +1,12 @@
+filebeat:
+
+  prospectors:
+
+    -
+      paths:
+
+        - "{{elasticsearch_home}}\\logs\\*.log"
+
+      input_type: log
+
+      document_type: elasticsearchlog

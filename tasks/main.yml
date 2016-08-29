@@ -33,11 +33,30 @@
     dest: "{{elasticsearch_home}}/config/elasticsearch.yml"
   notify: elasticsearch restart
 
-# TODO: Add elasticsearch logs to filebeat if it is installed
+- name: Check if {{ filebeat_config_dir }} exists
+  raw: Test-Path {{ filebeat_config_dir }}
+  register: filebeat_config_dir_exists
 
+- name: Enshure elasticsearch prospector is generated
+  win_template:
+    src: elasticsearch_log.yml.j2
+    dest: "{{ filebeat_config_dir }}/elasticsearch_log.yml"
+  when: filebeat_config_dir_exists.stdout_lines[0]
+  notify: filebeat restart
 
 - name: Ensure elasticsearch service is installed
   raw: CMD /C {{elasticsearch_home}}\bin\service.bat install
+  notify: elasticsearch restart
 
 - name: Ensure elasticsearch-service-x64 service is started
   win_service: name=elasticsearch-service-x64 start_mode=auto state=started
+
+- name: Ensure elasticsearch port {{ elasticsearch_http_port }} is opened
+  win_firewall_rule:
+    name: elasticsearch
+    enable: yes
+    state: present
+    localport: "{{ elasticsearch_http_port }}"
+    action: allow
+    direction: In
+    protocol: TCP
