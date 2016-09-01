@@ -5,7 +5,8 @@ filebeat:
     -
       paths:
 
-        - "{{elasticsearch_home}}\\logs\\*.log"
+        - "{{elasticsearch_home}}/logs/*.log"
+        - "{{elasticsearch_home}}/logs/*.log.*"
 
       input_type: log
 

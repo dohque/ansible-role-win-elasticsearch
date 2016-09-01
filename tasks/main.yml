@@ -1,30 +1,25 @@
 ---
 
+- name: Ensure jdk8 is installed
+  win_chocolatey:
+    name: jdk8
+    # Workaround: broken chocolatey package with wrong checksums
+    allow_empty_checksums: true
+    state: present
+  notify: elasticsearch restart
+
 - name: Ensure elasticsearch is installed
   win_chocolatey:
-    # --allow-empty-checksum is a workaround for accepting java license
-    name: elasticsearch -y --allow-empty-checksums
+    name: elasticsearch
+    # Workaround: elasticsearch package in chocolatey uses javaruntime
+    # dependency which depends on jre8 while kibana package depends on jdk8.
+    # jdk8 set up JAVA_HOME to itself while elasticsearch service was
+    # set up by this role to use JAVA_HOME pointed to jre
+    # as result service cant find jvm.dll
+    ignore_dependencies: true
     version: "{{elasticsearch_version}}"
     state: present
-  # notify: elasticsearch restart
-
-# Detect java home from registry
-- name: Detect Java version
-  raw: Get-ItemProperty Registry::"HKLM\SOFTWARE\JavaSoft\Java Runtime Environment" | % { $_.CurrentVersion }
-  register: result
-
-- name: Detect JAVA_HOME
-  raw: Get-ItemProperty Registry::"HKLM\SOFTWARE\JavaSoft\Java Runtime Environment\{{ result.stdout_lines[0] }}" | % { $_.JavaHome }
-  register: result
-
-- set_fact: java_home="{{ result.stdout_lines[0] }}"
-
-- name: Ensure JAVA_HOME is set to {{java_home}}
-  win_environment:
-    state: present
-    name: JAVA_HOME
-    value: "{{ java_home }}"
-    level: machine
+  notify: elasticsearch restart
 
 # TODO: Add aditional custom extra params
 - name: Ensure elasticsearch.yml is generated
@@ -45,12 +40,14 @@
   notify: filebeat restart
 
 - name: Ensure elasticsearch service is installed
-  raw: CMD /C {{elasticsearch_home}}\bin\service.bat install
+  raw: CMD /C "{{elasticsearch_home | replace('/', '\\')}}\bin\service.bat install"
   notify: elasticsearch restart
 
 - name: Ensure elasticsearch-service-x64 service is started
   win_service: name=elasticsearch-service-x64 start_mode=auto state=started
 
+# TODO: default host is 127.0.0.1 in this case no need to open port
+# Think on reasonable compatible defaults
 - name: Ensure elasticsearch port {{ elasticsearch_http_port }} is opened
   win_firewall_rule:
     name: elasticsearch
