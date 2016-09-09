@@ -3,8 +3,6 @@
 - name: Ensure jdk8 is installed
   win_chocolatey:
     name: jdk8
-    # Workaround: broken chocolatey package with wrong checksums
-    allow_empty_checksums: true
     state: present
   notify: elasticsearch restart
 
@@ -46,14 +44,15 @@
 - name: Ensure elasticsearch-service-x64 service is started
   win_service: name=elasticsearch-service-x64 start_mode=auto state=started
 
-# TODO: default host is 127.0.0.1 in this case no need to open port
-# Think on reasonable compatible defaults
 - name: Ensure elasticsearch port {{ elasticsearch_http_port }} is opened
   win_firewall_rule:
     name: elasticsearch
     enable: yes
     state: present
+    # Workaround: ansible issue with default profile
+    profile: "Domain,Private,Public"
     localport: "{{ elasticsearch_http_port }}"
     action: allow
     direction: In
     protocol: TCP
+  when: "{{ elasticsearch_network_host != '127.0.0.1' }}"
