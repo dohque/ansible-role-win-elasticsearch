@@ -29,17 +29,26 @@
 - name: Check if {{ filebeat_config_dir }} exists
   raw: Test-Path {{ filebeat_config_dir }}
   register: filebeat_config_dir_exists
+  changed_when: False
+  when: filebeat_config_dir is defined
 
 - name: Enshure elasticsearch prospector is generated
   win_template:
     src: elasticsearch_log.yml.j2
     dest: "{{ filebeat_config_dir }}/elasticsearch_log.yml"
-  when: filebeat_config_dir_exists.stdout_lines[0]
+  when:
+    - filebeat_config_dir is defined
+    - filebeat_config_dir_exists.stdout_lines[0]
   notify: filebeat restart
+
+- name: Check if elasticsearch-service-x64 is installed
+  raw: If (Get-Service "elasticsearch-service-x64" -ErrorAction SilentlyContinue) { "True" } else { "False" }
+  register: elasticsearch_service_installed
+  changed_when: False
 
 - name: Ensure elasticsearch service is installed
   raw: CMD /C "{{elasticsearch_home | replace('/', '\\')}}\bin\service.bat install"
-  notify: elasticsearch restart
+  when: elasticsearch_service_installed.stdout_lines[0] == "False"
 
 - name: Ensure elasticsearch-service-x64 service is started
   win_service: name=elasticsearch-service-x64 start_mode=auto state=started
